@@ -1,5 +1,5 @@
-# Experimental DCTL  
-Color grading experimentation site with DCTLs for DaVinci Resolve.
+# DCTL
+# Color grading experimentation with DCTLs for DaVinci Resolve.
 
 
 Para la instalación de cada archivo solo se necesita seguir estos pasos:
