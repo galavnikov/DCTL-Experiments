@@ -1,0 +1,137 @@
+//2Compose / version 1.0 / DCTL for Advanced Composition Guides
+//Created by Galavnikov @ lakravana.com
+
+
+// --- Controles Generales ---
+#define ASPECT_FULL_FRAME 0
+#define ASPECT_16_9 1
+#define ASPECT_9_16 2
+#define ASPECT_4_3 3
+
+DEFINE_UI_PARAMS(SafeArea, Aspect Ratio, DCTLUI_COMBO_BOX, 0, { ASPECT_FULL_FRAME, ASPECT_16_9, ASPECT_9_16, ASPECT_4_3 }, { Full-Frame, 16:9, 9:16, 4:3 })
+
+#define GRID_NONE 0
+#define GRID_RULE_OF_THIRDS 1
+#define GRID_GOLDEN_SECTION 2
+#define GRID_TRIANGLES 3
+#define GRID_GOLDEN_SPIRAL 4
+
+DEFINE_UI_PARAMS(GridType, GRID Type, DCTLUI_COMBO_BOX, 0, { GRID_NONE, GRID_RULE_OF_THIRDS, GRID_GOLDEN_SECTION, GRID_TRIANGLES, GRID_GOLDEN_SPIRAL }, { None, Rule of Thirds, Golden Section, Triangles, Golden Spiral })
+
+
+// --- Controles de Estilo de Línea ---
+DEFINE_UI_PARAMS(LineColorR, Red, DCTLUI_SLIDER_FLOAT, 0.0f, 0.0f, 1.0f, 0.01f)
+DEFINE_UI_PARAMS(LineColorG, Green, DCTLUI_SLIDER_FLOAT, 0.0f, 0.0f, 1.0f, 0.01f)
+DEFINE_UI_PARAMS(LineColorB, Blue, DCTLUI_SLIDER_FLOAT, 0.0f, 0.0f, 1.0f, 0.01f)
+DEFINE_UI_PARAMS(LineOpacity, Opacity, DCTLUI_SLIDER_FLOAT, 1.0f, 0.0f, 1.0f, 0.01f)
+DEFINE_UI_PARAMS(LineWidth, Width Line, DCTLUI_SLIDER_FLOAT, 0.002f, 0.0001f, 0.01f, 0.0001f)
+
+
+//-----------------------------------------------------------------------------------------
+// FUNCIÓN PRINCIPAL
+//-----------------------------------------------------------------------------------------
+
+__DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, float p_R, float p_G, float p_B)
+{
+    if (GridType == GRID_NONE) {
+        return make_float3(p_R, p_G, p_B);
+    }
+
+    // --- Cálculo del Área Segura ---
+    float safe_x = 0.0f;
+    float safe_y = 0.0f;
+    float safe_width = (float)p_Width;
+    float safe_height = (float)p_Height;
+
+    if (SafeArea != ASPECT_FULL_FRAME) {
+        float target_aspect = 16.0f / 9.0f;
+        if (SafeArea == ASPECT_9_16) {
+            target_aspect = 9.0f / 16.0f;
+        } else if (SafeArea == ASPECT_4_3) {
+            target_aspect = 4.0f / 3.0f;
+        }
+
+        float frame_aspect = (float)p_Width / (float)p_Height;
+
+        if (frame_aspect > target_aspect) {
+            safe_width = (float)p_Height * target_aspect;
+            safe_x = ((float)p_Width - safe_width) / 2.0f;
+        } else {
+            safe_height = (float)p_Width / target_aspect;
+            safe_y = ((float)p_Height - safe_height) / 2.0f;
+        }
+    }
+
+    if (p_X < safe_x || p_X >= safe_x + safe_width || p_Y < safe_y || p_Y >= safe_y + safe_height) {
+        return make_float3(p_R, p_G, p_B);
+    }
+
+    float x_norm = (p_X - safe_x) / (safe_width - 1.0f);
+    float y_norm = (p_Y - safe_y) / (safe_height - 1.0f);
+
+    bool is_on_line = false;
+    float finalLineWidth = LineWidth;
+
+    if (GridType == GRID_RULE_OF_THIRDS) {
+        float third = 1.0f / 3.0f;
+        if (_fabs(x_norm - third) < finalLineWidth || _fabs(x_norm - 2.0f * third) < finalLineWidth ||
+            _fabs(y_norm - third) < finalLineWidth || _fabs(y_norm - 2.0f * third) < finalLineWidth) {
+            is_on_line = true;
+        }
+    }
+    else if (GridType == GRID_GOLDEN_SECTION) {
+        float phi = (1.0f + _sqrtf(5.0f)) / 2.0f;
+        float invPhi = 1.0f / phi;
+        float invPhi2 = 1.0f - invPhi;
+        if (_fabs(x_norm - invPhi) < finalLineWidth || _fabs(x_norm - invPhi2) < finalLineWidth ||
+            _fabs(y_norm - invPhi) < finalLineWidth || _fabs(y_norm - invPhi2) < finalLineWidth) {
+            is_on_line = true;
+        }
+    }
+    else if (GridType == GRID_GOLDEN_SPIRAL) {
+        float x = x_norm - 0.5f;
+        float y = y_norm - 0.5f;
+        
+        float aspect_ratio = safe_width / safe_height;
+
+        if (aspect_ratio > 1.0f) {
+            x *= aspect_ratio;
+        } else {
+            y /= aspect_ratio;
+        }
+        
+        float r_pixel = _sqrtf(x*x + y*y);
+        float theta_pixel = _atan2f(y, x);
+        float phi = (1.0f + _sqrtf(5.0f)) / 2.0f;
+        float pi = 3.14159265359f;
+        float a = 0.02f;
+
+        for (int i = 0; i < 4; i++) {
+            float rotation = i * pi / 2.0f;
+            float theta_adjusted = theta_pixel - rotation;
+            for (int k = -8; k <= 8; k++) {
+                float theta_unwound = theta_adjusted + k * 2.0f * pi;
+                if (theta_unwound >= 0.0f) {
+                    float r_spiral = a * _powf(phi, 2.0f * theta_unwound / pi);
+                    if (_fabs(r_pixel - r_spiral) < (finalLineWidth * _fmaxf(1.0f, aspect_ratio))) {
+                        is_on_line = true; break;
+                    }
+                }
+            }
+            if (is_on_line) break;
+        }
+    }
+    else if (GridType == GRID_TRIANGLES) {
+        if (_fabs(y_norm - x_norm) < finalLineWidth || _fabs(y_norm - (1.0f - x_norm)) < finalLineWidth) {
+            is_on_line = true;
+        }
+    }
+
+    if (is_on_line) {
+        float3 line_color = make_float3(LineColorR, LineColorG, LineColorB);
+        float3 original_color = make_float3(p_R, p_G, p_B);
+        return (line_color * LineOpacity) + (original_color * (1.0f - LineOpacity));
+    } else {
+        return make_float3(p_R, p_G, p_B);
+    }
+}
