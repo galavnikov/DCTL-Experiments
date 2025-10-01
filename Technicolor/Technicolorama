@@ -1,0 +1,82 @@
+//Technicolorama / version 1.0 / Technicolor Process Emulator (2 and 3 Strips)
+//Created by Galavnikov @ lakravana.com
+
+
+// --- Definición de los Parámetros para la Interfaz de Usuario ---
+#define tiras3 0
+#define tiras2 1
+
+// Menú desplegable para seleccionar el tipo de proceso
+DEFINE_UI_PARAMS(techni_process, Technicolor Process, DCTLUI_COMBO_BOX, 0, { tiras3, tiras2 },{3 strips (RGB), 2 strips (Red y Cian)})
+
+// Sliders para la intensidad de cada "tira" de color
+DEFINE_UI_PARAMS(strip_r, Red Strip Intensity, DCTLUI_SLIDER_FLOAT, 1.0, 0.0, 2.5, 0.05)
+DEFINE_UI_PARAMS(strip_g, Green / Cian Strip Intensity, DCTLUI_SLIDER_FLOAT, 1.0, 0.0, 2.5, 0.05)
+DEFINE_UI_PARAMS(strip_b, Blue Strip Intensity, DCTLUI_SLIDER_FLOAT, 1.0, 0.0, 2.5, 0.05)
+
+// Slider para el sangrado de color (solo afecta al modo 3 Tiras)
+DEFINE_UI_PARAMS(bleed, Color Bleeding, DCTLUI_SLIDER_FLOAT, 0.05, 0.0, 1.0, 0.05)
+
+// Slider para el contraste final de la emulsión
+DEFINE_UI_PARAMS(contrast, Print Contrast, DCTLUI_SLIDER_FLOAT, 1.2, 0.5, 2.5,0.05)
+
+
+// --- Función Principal del Proceso ---
+
+__DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, float p_R, float p_G, float p_B)
+{
+    // Almacenar los valores de entrada originales
+    const float in_r = p_R;
+    const float in_g = p_G;
+    const float in_b = p_B;
+
+    // Variables para el resultado
+    float out_r;
+    float out_g;
+    float out_b;
+
+    // --- LÓGICA DEL PROCESO ---
+    if (techni_process == 0) // Proceso de 3 Tiras
+    {
+        // 1. Aplicar la intensidad de cada tira
+        float r_strip = in_r * strip_r;
+        float g_strip = in_g * strip_g;
+        float b_strip = in_b * strip_b;
+
+        // 2. Simular el sangrado de color (Color Bleed)
+        // Cada canal final es una mezcla del original con un promedio de los otros dos.
+        // La cantidad de mezcla es controlada por el parámetro 'bleed'.
+        out_r = r_strip * (1.0f - bleed) + ((g_strip + b_strip) / 2.0f) * bleed;
+        out_g = g_strip * (1.0f - bleed) + ((r_strip + b_strip) / 2.0f) * bleed;
+        out_b = b_strip * (1.0f - bleed) + ((r_strip + g_strip) / 2.0f) * bleed;
+    }
+    else // Proceso de 2 Tiras (Emulación Rojo-Cian)
+    {
+        // El proceso de 2 tiras históricamente grababa rojo y verde, y el negativo verde se teñía de cian.
+        // Emulamos esto tomando el rojo original y creando un componente cian a partir del verde y el azul.
+        
+        // 1. Componente de la tira roja
+        float red_component = in_r * strip_r;
+        
+        // 2. Componente de la tira cian (promedio de verde y azul)
+        float cyan_component = ((in_g + in_b) / 2.0f) * strip_g;
+        
+        // Asignar a los canales de salida
+        out_r = red_component;
+        out_g = cyan_component;
+        out_b = cyan_component;
+        // El slider de la tira azul (strip_b) se ignora en este modo.
+    }
+    
+    // --- AJUSTES FINALES COMUNES ---
+
+    // 3. Aplicar Contraste de Impresión
+    // Usamos una función de potencia simple para emular una curva de contraste.
+    // Se asegura que los valores no sean negativos antes de la exponenciación.
+    out_r = _powf(_fmaxf(0.0f, out_r), contrast);
+    out_g = _powf(_fmaxf(0.0f, out_g), contrast);
+    out_b = _powf(_fmaxf(0.0f, out_b), contrast);
+    
+    // Devolver el resultado final como un struct float3
+    return make_float3(out_r, out_g, out_b);
+}
