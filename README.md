@@ -1,6 +1,6 @@
 # DCTL
 
-Instalación:
+Para la instalación de cada archivo solo se necesita seguir estos pasos:
 
 Copia el archivo .dctl en la carpeta LUT de DaVinci Resolve.
 
