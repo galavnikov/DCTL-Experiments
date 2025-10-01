@@ -7,11 +7,9 @@ To install each file, you only need to follow these steps:
 
   1. Copy the .dctl file into the DaVinci Resolve LUT folder.
 
-    1.1 macOS: 
-    ~/Library/Application Support/Blackmagic Design/DaVinci Resolve/LUT
+   * 1.1 macOS  ~/Library/Application Support/Blackmagic Design/DaVinci Resolve/LUT
 
-    1.2 Windows:
-    C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\LUT
+   * 1.2 Windows:  C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\LUT
 
   2. Open DaVinci Resolve, go to Project Settings > Color Management, and click Update Lists.
   3. The DCTL will appear in your Effects list within the Color page.
