@@ -1,0 +1,18 @@
+//4bits_vision / version 1.0 / 4bits Simulation
+//Created by Galavnikov @ lakravana.com
+
+
+// Esta firma es para DCTLs que operan sobre un píxel a la vez.
+__DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, float p_R, float p_G, float p_B)
+{
+    // --- LÓGICA DE CUANTIFICACIÓN DE COLOR A 4-BIT ---
+
+    // El color de entrada es (p_R, p_G, p_B).
+    // Se convierte a una paleta de 16 colores (1 bit para Rojo, 2 para Verde, 1 para Azul).
+    float r_out = _round(p_R);
+    float g_out = _round(p_G * 3.0f) / 3.0f;
+    float b_out = _round(p_B);
+
+    // Devolver el píxel procesado.
+    return make_float3(r_out, g_out, b_out);
+}
