@@ -1,4 +1,4 @@
-# Color grading experimentation site with DCTLs for DaVinci Resolve.
+# Color grading experimentation projects with DCTLs
 
 
 Para la instalación de cada archivo solo se necesita seguir estos pasos:
