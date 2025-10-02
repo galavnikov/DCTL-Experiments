@@ -1,6 +1,5 @@
-// DCTL SCRIPT: TECHNICOLOR PROCESS (FINAL, ROBUST VERSION)
-// © 2025 Gemini AI
-// DEBUGGED AND OPTIMIZED ACCORDING TO OFFICIAL DAVINCI RESOLVE DOCUMENTATION
+//Technicolorama / version 2.0 / Technicolor process
+//Created by Galavnikov @ lakravana.com
 
 #define TIRAS3 0
 #define TIRAS2 1
@@ -17,12 +16,10 @@ DEFINE_UI_PARAMS(sat, Saturation, DCTLUI_SLIDER_FLOAT, 1.0f, 0.0f, 2.0f, 0.01f)
 DEFINE_UI_PARAMS(tint_general, Tint, DCTLUI_SLIDER_FLOAT, 0.0f, -180.0f, 180.0f, 0.1f)
 
 // --- Helper Functions ---
-
 __DEVICE__ float3 fract_f3(float3 v) {
     return make_float3(v.x - _floorf(v.x), v.y - _floorf(v.y), v.z - _floorf(v.z));
 }
 
-// NEW HELPER for vector absolute value, as _fabs() is for single floats
 __DEVICE__ float3 fabs_f3(float3 v) {
     return make_float3(_fabs(v.x), _fabs(v.y), _fabs(v.z));
 }
@@ -101,4 +98,5 @@ __DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, float p
     
     // --- PASO 5: Devolver el resultado final ---
     return final_rgb;
+
 }
