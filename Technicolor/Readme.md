@@ -1,4 +1,4 @@
-# Technicolor Process Emulator (2 and 3 Strips)
+# Technicolorama v1.0 - Technicolor Process Emulator (2 and 3 Strips)
 
 Revive the aesthetic of cinema's golden age with this **DCTL (DaVinci Color Transform Language)** for DaVinci Resolve. It emulates the iconic **2-strip and 3-strip Technicolor processes**, offering detailed control over the intensity of each color and the characteristic "color bleeding" to achieve an authentic vintage film look.
 
