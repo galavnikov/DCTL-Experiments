@@ -1,40 +1,35 @@
-# Technicolorama v1.0 - Technicolor Process Emulator (2 and 3 Strips)
+# Technicolorama v1.0 - Emulador de Proceso Technicolor (2 y 3 Strips)
 
-Revive the aesthetic of cinema's golden age with this **DCTL (DaVinci Color Transform Language)** for DaVinci Resolve. It emulates the iconic **2-strip and 3-strip Technicolor processes**, offering detailed control over the intensity of each color and the characteristic "color bleeding" to achieve an authentic vintage film look.
+Revive la estética de la época dorada del cine con este DCTL (DaVinci Color Transform Language) para DaVinci Resolve. Emula los icónicos procesos Technicolor de 2 y 3 tiras, ofreciendo un control detallado sobre la intensidad de cada color y el característico "sangrado de color" (color bleeding) para conseguir un look de película vintage auténtico.
 
+## Descripción Detallada y Filosofía
+Technicolorama es un DCTL diseñado para simular los procesos de filmación e impresión Technicolor. A diferencia de un LUT estático, proporciona parámetros dinámicos para personalizar completamente el efecto.
 
-# Detailed Description and Philosophy
+Permite a coloristas y editores recrear con precisión el mundo vibrante y saturado del cine clásico. Es ideal para dar un carácter único a vídeos musicales, cortometrajes o cualquier pieza que busque una estética nostálgica y rica en color.
 
-Technicolorama is a DCTL designed to simulate the Technicolor filming and printing processes. Unlike a static LUT, it provides **dynamic parameters** to fully customize the effect.
+La herramienta se basa en los dos procesos Technicolor más famosos:
 
-It allows colorists and editors to precisely recreate the vibrant, saturated world of classic cinema. It's ideal for giving a unique character to **music videos, short films, or any piece** seeking a nostalgic, color-rich aesthetic.
+* Proceso de 2 Tiras (2-Strip): Una versión anterior que creaba una imagen distintiva a partir de componentes rojo y cian.
+  
+* Proceso de 3 Tiras (3-Strip): Que registraba la luz en tres negativos distintos (rojo, verde y azul) para luego combinarlos.
 
-The tool is based on the two most famous Technicolor processes:
+## Parámetros y Controles
+Este DCTL ofrece los siguientes controles en la interfaz de DaVinci Resolve:
 
-  2-Strip Process: An earlier version that created a distinctive image from red and cyan components.
-  3-Strip Process: Which recorded light onto three distinct negatives (red, green, and blue) to later combine them.
+* Proceso Technicolor (Technicolor Process): Un menú desplegable para elegir entre los dos modos de simulación.
 
+  * 3 Tiras (RGB): Emula el proceso Technicolor más avanzado, trabajando con los canales Rojo, Verde y Azul.  
+  * 2 Tiras (Rojo y Cian): Emula el proceso más antiguo, generando una imagen basada en un componente rojo y uno cian.
 
-# Parameters and Controls
+* Intensidad de Tira Roja (Red Strip Intensity): Controla la fuerza del canal rojo en ambos modos.
 
-This DCTL offers the following controls in the DaVinci Resolve interface:
+* Intensidad de Tira Verde/Cian (Green/Cyan Strip Intensity):
 
-Technicolor Process: A dropdown menu to choose between the two simulation modes.
+  * En modo 3 tiras, ajusta la intensidad del canal verde.
+  * En modo 2 tiras, ajusta la intensidad del componente cian, que se genera a partir de la información original del canal verde y azul.
 
-  3 strips (RGB): Emulates the most advanced Technicolor process, working with the Red, Green, and Blue channels.
-  2 strips (Red and Cyan): Emulates the older process, generating an image based on a red and a cyan component.
+* Intensidad de Tira Azul (Blue Strip Intensity): En modo 3 tiras, ajusta la intensidad del canal azul. Este deslizador se ignora y no tiene efecto en el modo 2 tiras.
 
-Red Strip Intensity: Controls the strength of the red channel in both modes.
+* Sangrado de Color (Color Bleeding): Este deslizador simula la imperfección del proceso de tintado, donde los colores "sangran" o se mezclan entre sí. Mezcla cada canal de color con un promedio de los otros dos. Este efecto solo está activo en el modo 3 tiras.
 
-Green/Cyan Strip Intensity:
-
-  3 strips mode, this adjusts the intensity of the green channel.
-  2 strips mode, this adjusts the intensity of the cyan component, which is generated from the original green and blue channel information.
-
-Blue Strip Intensity: In 3 strips mode, this adjusts the intensity of the blue channel.
-  This slider is ignored and has no effect in 2 strips mode.
-
-Color Bleeding: This slider simulates the imperfection of the tinting process, where colors "bleed" into one another.
-  It mixes each color channel with an average of the other two. This effect is only active in 3 strips mode.
-
-Print Contrast: Applies a final contrast curve to the entire image to emulate the dense appearance of a physical film print. This adjustment is applied to the... (The original text cuts off here, but this is the translation of what was provided.)
+* Contraste de Impresión (Print Contrast): Aplica una curva de contraste final a toda la imagen para emular la apariencia densa de una impresión física de película. Este ajuste se aplica a la... (El texto original se corta aquí).
