@@ -1,0 +1,68 @@
+//Daltonic_world / version 1.0 / DCTL for Daltonic vision simulation
+//Created by Galavnikov @ lakravana.com
+
+
+
+// --- Definición de la Interfaz de Usuario ---
+// Se crean tres checkboxes para que el usuario elija el tipo de simulación.
+
+DEFINE_UI_PARAMS(enableProtanopia, Protanopia | Whithout Red, DCTLUI_CHECK_BOX, 0)
+DEFINE_UI_PARAMS(enableDeuteranopia, Deuteranopia | Whithout Green, DCTLUI_CHECK_BOX, 0)
+DEFINE_UI_PARAMS(enableTritanopia, Tritanopia | Whithout Blue, DCTLUI_CHECK_BOX, 0)
+
+// La función principal que se ejecuta para cada píxel de la imagen.
+__DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, float p_R, float p_G, float p_B)
+{
+    // Guardar el color de entrada en un vector float3
+    float3 in_rgb = make_float3(p_R, p_G, p_B);
+
+    // --- Paso 1: Conversión de RGB a LMS ---
+    const float3 L_vec = make_float3(0.31399022f, 0.63951294f, 0.04649755f);
+    const float3 M_vec = make_float3(0.15537241f, 0.75789446f, 0.08670142f);
+    const float3 S_vec = make_float3(0.01775239f, 0.10944209f, 0.87256922f);
+
+    float lms_l = dot(in_rgb, L_vec);
+    float lms_m = dot(in_rgb, M_vec);
+    float lms_s = dot(in_rgb, S_vec);
+
+    // --- Paso 2: Aplicar la simulación de daltonismo (versión combinable) ---
+    // Se inicializan los valores simulados con los originales.
+    float sim_l = lms_l;
+    float sim_m = lms_m;
+    float sim_s = lms_s;
+
+    // Cada 'if' es independiente, permitiendo combinar los efectos.
+    if (enableProtanopia == 1) {
+        // Protanopia: Ausencia de conos L (Rojo).
+        // Se usa el valor actual de 'sim_m' y 'sim_s' para recalcular 'sim_l'.
+        sim_l = 0.56667f * sim_m + 0.43333f * sim_s;
+    }
+    
+    if (enableDeuteranopia == 1) {
+        // Deuteranopia: Ausencia de conos M (Verde).
+        // Se usa el valor actual de 'sim_l' y 'sim_s' para recalcular 'sim_m'.
+        sim_m = 0.625f * sim_l + 0.375f * sim_s;
+    }
+    
+    if (enableTritanopia == 1) {
+        // Tritanopia: Ausencia de conos S (Azul).
+        // Se usa el valor actual de 'sim_l' y 'sim_m' para recalcular 'sim_s'.
+        sim_s = -0.395913f * sim_l + 0.801109f * sim_m;
+    }
+    
+    float3 lms_simulated = make_float3(sim_l, sim_m, sim_s);
+
+    // --- Paso 3: Conversión de LMS de vuelta a RGB ---
+    const float3 R_conv = make_float3( 5.47221206f, -4.6419601f,  0.16963708f);
+    const float3 G_conv = make_float3(-1.1252419f,  2.29317094f, -0.1678952f);
+    const float3 B_conv = make_float3( 0.02980165f, -0.19318183f,  1.16364789f);
+
+    float3 out_rgb = make_float3(
+        dot(lms_simulated, R_conv),
+        dot(lms_simulated, G_conv),
+        dot(lms_simulated, B_conv)
+    );
+
+    // Se retorna el color del píxel modificado.
+    return out_rgb;
+}
