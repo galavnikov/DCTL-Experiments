@@ -1,0 +1,55 @@
+//HalationRGB / version 1.0 / DCTL for Luminance Selective Halation and Saturation
+//Created by Galavnikov @ lakravana.com
+
+
+// Definición de los controles en la interfaz de usuario (UI)
+DEFINE_UI_PARAMS(luma_center, Central Luma, DCTLUI_SLIDER_FLOAT, 0.5, 0.0, 1.0, 0.01)
+DEFINE_UI_PARAMS(luma_width, Width Luma , DCTLUI_SLIDER_FLOAT, 0.2, 0.0, 1.0, 0.01)
+DEFINE_UI_PARAMS(halation, Halation Intensity, DCTLUI_SLIDER_FLOAT, 0.0, 0.0, 1.0, 0.01)
+DEFINE_UI_PARAMS(saturation_r, Red Saturation, DCTLUI_SLIDER_FLOAT, 1.0, 0.0, 3.0, 0.01)
+DEFINE_UI_PARAMS(saturation_g, Green Saturation, DCTLUI_SLIDER_FLOAT, 1.0, 0.0, 3.0, 0.01)
+DEFINE_UI_PARAMS(saturation_b, Blue Saturation, DCTLUI_SLIDER_FLOAT, 1.0, 0.0, 3.0, 0.01)
+
+// Constante para el cálculo de la luminancia (Rec.709)
+__CONSTANT__ float3 kLumCoeff = {0.2126f, 0.7152f, 0.0722f};
+
+// Función principal de transformación con la firma solicitada
+__DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, float p_R, float p_G, float p_B)
+{
+    // 1. Construir el vector de color RGB a partir de los argumentos de la función
+    float3 in_rgb = make_float3(p_R, p_G, p_B);
+
+    // Evitar valores negativos que puedan causar problemas
+    in_rgb.x = _fmaxf(0.0f, in_rgb.x);
+    in_rgb.y = _fmaxf(0.0f, in_rgb.y);
+    in_rgb.z = _fmaxf(0.0f, in_rgb.z);
+
+    // 2. Calcular la luminancia del píxel
+    float luma = dot(in_rgb, kLumCoeff);
+
+    // 3. Crear una máscara de luminancia
+    // Se usa 'smoothstep' para crear una selección suave basada en los controles de la UI
+    float luma_min = luma_center - (luma_width / 2.0f);
+    float luma_max = luma_center + (luma_width / 2.0f);
+    float mask = smoothstep(luma_min, luma_center, luma) * (1.0f - smoothstep(luma_center, luma_max, luma));
+
+    // 4. Ajustar la saturación por canal (R, G, B)
+    float3 sat_rgb;
+    float luma_sat = dot(in_rgb, kLumCoeff); // Se usa la luminancia como base para la saturación
+    sat_rgb.x = luma_sat + (in_rgb.x - luma_sat) * saturation_r;
+    sat_rgb.y = luma_sat + (in_rgb.y - luma_sat) * saturation_g;
+    sat_rgb.z = luma_sat + (in_rgb.z - luma_sat) * saturation_b;
+
+    // 5. Mezclar el color original con el color saturado usando la máscara
+    // 'lerp' (interpolación lineal) aplica el ajuste solo en la zona de la máscara
+    float3 out_rgb = lerp(in_rgb, sat_rgb, mask);
+
+    // 6. Calcular y añadir el efecto de Halation
+    // Simula un resplandor rojizo-anaranjado en la zona de la máscara
+    float3 halation_color = make_float3(0.1f, 0.02f, 0.01f); // Tono del resplandor
+    float3 halation_effect = halation * mask * halation_color;
+    out_rgb += halation_effect;
+
+    // 7. Devolver el color del píxel modificado
+    return out_rgb;
+}

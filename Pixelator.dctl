@@ -1,0 +1,23 @@
+//Pixelator / version 1.0 / Screen pixelator
+//Created by Galavnikov @ lakravana.com
+
+DEFINE_UI_PARAMS(lineas_horizontales, Horizontal lines, DCTLUI_VALUE_BOX, 100)
+DEFINE_UI_PARAMS(lineas_verticales, Vertical lines,   DCTLUI_VALUE_BOX, 100)
+
+
+// --- Función Principal --- Se usa la firma de función correcta para efectos espaciales.
+__DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y, __TEXTURE__ p_TexR, __TEXTURE__ p_TexG, __TEXTURE__ p_TexB)
+{
+    // Lógica del Pixelado
+    float tamano_bloque_x = (float)p_Width / (float)lineas_horizontales;
+    float tamano_bloque_y = (float)p_Height / (float)lineas_verticales;
+
+    float muestra_x = _floorf((float)p_X / tamano_bloque_x) * tamano_bloque_x + (tamano_bloque_x * 0.5f);
+    float muestra_y = _floorf((float)p_Y / tamano_bloque_y) * tamano_bloque_y + (tamano_bloque_y * 0.5f);
+
+    float r = _tex2D(p_TexR, muestra_x, muestra_y);
+    float g = _tex2D(p_TexG, muestra_x, muestra_y);
+    float b = _tex2D(p_TexB, muestra_x, muestra_y);
+    
+    return make_float3(r, g, b);
+}
