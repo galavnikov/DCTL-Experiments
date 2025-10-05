@@ -2,21 +2,21 @@
 Este repositorio es un catálogo de experimentos DCTL, con versiones finales y/o en curso pero totalmente funcionales para DaVinci Resolve. Siéntete libre de probar, experimentar o mejorar cualquiera de ellos y usarlos en tus flujos de trabajo de etalonaje.
 
 # La lista de proyectos DCTL es la siguiente:
-* Analogic film
+## Analogic film
   * HalationRGB.dctl - https://lakravana.com/halationrgb/
   
-* Color depth
+## Color depth
   * 4bits_vision
    
-* Composition
+## Composition
   2Compose
    
-* Human vision
+## Human vision
   * Daltonic_world.dctl - https://lakravana.com/daltonic_world/
   
-* Resolution
+## Resolution
   * Pixelator.dctl - https://lakravana.com/pixelator/
 
-* Technicolor
+## Technicolor
   *  v1  Technicolorama
   *  v2  Technicolorama
