@@ -6,10 +6,10 @@ Este repositorio es un catálogo de experimentos DCTL, con versiones finales y/o
   * HalationRGB.dctl - https://lakravana.com/halationrgb/
   
 ## Color depth
-  * 4bits_vision
+  * 4bits_vision - https://lakravana.com/4bits/
    
 ## Composition
-  2Compose
+  2Compose - https://lakravana.com/2compose/
    
 ## Human vision
   * Daltonic_world.dctl - https://lakravana.com/daltonic_world/
@@ -18,5 +18,5 @@ Este repositorio es un catálogo de experimentos DCTL, con versiones finales y/o
   * Pixelator.dctl - https://lakravana.com/pixelator/
 
 ## Technicolor
-  *  v1  Technicolorama
+  *  v1  Technicolorama - https://lakravana.com/technicolorama/
   *  v2  Technicolorama
